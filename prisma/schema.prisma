@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -16,6 +17,7 @@ model Post {
   published  Boolean  @default(false)
   authorName String   @db.VarChar(255)
   author     User     @relation(fields: [authorName], references: [name])
+
   @@index([authorName])
 }
 
@@ -36,6 +38,7 @@ model User {
   followers   Follows[] @relation("following")
   posts       Post[]
   profile     Profile?
+
   @@index([email, name])
 }
 
@@ -45,6 +48,7 @@ model Follows {
   followedAt  DateTime @default(now())
   follower    User     @relation("follower", fields: [followerId], references: [name])
   following   User     @relation("following", fields: [followingId], references: [name])
+
   @@id([followerId, followingId])
   @@index([followerId, followingId])
 }

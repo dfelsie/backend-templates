@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { PrismaClient, User, Post } from ".prisma/client";
 import argon2 from "argon2";
+import prisma from "./prismaClient";
 
 /* import yargs, { Argv, number } from "yargs";
 const argv2 = yargs(process.argv.slice(2))
@@ -13,8 +14,6 @@ const argv2 = yargs(process.argv.slice(2))
 console.log(argv2.n);
  */
 
-const prisma = new PrismaClient();
-
 function createRandomUser(userNum: number): any {
   // password: await argon2.hash(newPassword),
 
@@ -24,11 +23,13 @@ function createRandomUser(userNum: number): any {
     name: faker.internet.userName().toLowerCase() + userNum,
     displayName: faker.name.firstName(),
     password: faker.internet.password(),
+    //Look, it's funny, and lorem is boring
+    bio: faker.hacker.phrase(),
   };
 }
 
 async function users(num: number) {
-  const users: any[] = [];
+  const users: User[] = [];
   const numUserRecords = await prisma.user.count();
   Array.from({ length: num }).forEach((_, index) => {
     users.push(createRandomUser(numUserRecords + index));
@@ -38,16 +39,23 @@ async function users(num: number) {
   await prisma.user.createMany({
     data: users,
   });
-  users.forEach(async (user, index, userAry) => {
+  users.forEach(async (user, index, userAry: User[]) => {
     const MAXNUMBERFOLLOWERS = 5;
     numFollowers = Math.ceil(Math.random() * MAXNUMBERFOLLOWERS) + 1;
     for (let i = 1; i <= numFollowers; i++) {
-      let follower = faker.helpers.arrayElement(
+      let follower: User = faker.helpers.arrayElement(
         userAry.slice(
           Math.floor((num / MAXNUMBERFOLLOWERS) * i),
           (num / MAXNUMBERFOLLOWERS) * (i + 1)
         )
       );
+
+      //Weird problem with
+      //"Cannot read properties of undefined (reading 'name')"
+      //Not sure what's up, but this check should help avoid it
+      if (!(follower?.name && user.name)) {
+        continue;
+      }
       await prisma.follows.create({
         data: {
           follower: {

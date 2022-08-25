@@ -1,3 +1,7 @@
+//Probably should index use ids, not names, 
+//as relations in future.
+//Food for thought.
+
 generator client {
   provider = "prisma-client-js"
   output   = "../node_modules/.prisma/client"
@@ -21,34 +25,27 @@ model Post {
   @@index([authorName])
 }
 
-model Profile {
-  id       Int     @id @default(autoincrement())
-  bio      String?
-  userName String  @unique @db.VarChar(255)
-  user     User    @relation(fields: [userName], references: [name])
-}
-
 model User {
   id          Int       @id @default(autoincrement())
   email       String    @unique
   name        String    @unique @db.VarChar(255)
   password    String
   displayName String    @db.VarChar(255)
+  bio         String    @default("Hello World!") @db.VarChar(255)
   following   Follows[] @relation("follower")
   followers   Follows[] @relation("following")
   posts       Post[]
-  profile     Profile?
 
   @@index([email, name])
 }
 
 model Follows {
-  followerId  String
-  followingId String
-  followedAt  DateTime @default(now())
-  follower    User     @relation("follower", fields: [followerId], references: [name])
-  following   User     @relation("following", fields: [followingId], references: [name])
+  followerName  String
+  followingName String
+  followedAt    DateTime @default(now())
+  follower      User     @relation("follower", fields: [followerName], references: [name])
+  following     User     @relation("following", fields: [followingName], references: [name])
 
-  @@id([followerId, followingId])
-  @@index([followerId, followingId])
+  @@id([followerName, followingName])
+  @@index([followerName, followingName])
 }

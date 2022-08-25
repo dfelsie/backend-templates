@@ -1,5 +1,5 @@
 import { PrismaClient, User, Post } from ".prisma/client";
-const prisma = new PrismaClient();
+import prisma from "./prismaClient";
 
 async function clear() {
   await prisma.follows.deleteMany();

@@ -4,7 +4,9 @@ import prisma from "./prismaClient";
 function connectElasticClient() {
   try {
     const client = new elasticSearch.Client({
-      node: "https://localhost:9200",
+      //node: "https://localhost:9200",
+      //node: "https://elastic:9200",
+      node: "https://es01:9200",
       maxRetries: 5,
       requestTimeout: 60000,
       sniffOnStart: true,

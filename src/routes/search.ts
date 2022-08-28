@@ -13,8 +13,7 @@ router.get("/title", async (req: Request, res: Response) => {
     index: "posts",
     query: {
       match: {
-        title: { query: titleQuery as string, fuzziness: 50 },
-        slop: 50,
+        title: { query: titleQuery as string, fuzziness: 1 },
       },
     },
   });

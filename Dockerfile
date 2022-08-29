@@ -14,7 +14,7 @@ COPY prisma ./prisma
 
 COPY tsconfig.json .
 
-COPY .env .
+ADD .dockerenv ./.env
 
 RUN npm install
 

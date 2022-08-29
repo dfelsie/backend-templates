@@ -1,7 +1,10 @@
 import Redis from "ioredis";
 
-const client = new Redis({
+const client = new Redis(6379, process.env.REDIS_HOST ?? "localhost", {
   //default host/port
+  //host: "myredis",
+  host: process.env.REDIS_HOST,
+  port: 6379,
 });
 
 /* client.on("error", function (err) {

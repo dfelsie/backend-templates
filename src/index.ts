@@ -15,8 +15,9 @@ dotenv.config();
 const app: Express = express();
 const port = process.env.PORT;
 const corsOptions: cors.CorsOptions = {
+  //origin: "http://blogfront:3018",
   origin: "http://localhost:3018",
-  methods: ["POST", "PUT", "GET", "DELETE"],
+  methods: ["POST", "PUT", "GET", "DELETE", "OPTIONS"],
   credentials: true,
 };
 app.use(cors(corsOptions));
@@ -24,10 +25,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(morgan("tiny"));
-console.log("Bungus: ", process.env.REDISADDR);
-/* const client = new Redis({
-  //default host/port
-}); */
+
 declare module "express-session" {
   export interface SessionData {
     email: string;
@@ -43,13 +41,14 @@ try {
       secret: "this_is_a_secret",
       resave: false,
       saveUninitialized: false,
-
       //rolling: true, // forces resetting of max age
       store: new RedisStore({
         client,
-        host: "localhost",
+        host: process.env.REDIS_HOST,
         port: 6379,
+        //url: "redis://myredis:6379",
         ttl: 90000,
+        logErrors: true,
       }),
       cookie: {
         maxAge: 360000,
@@ -69,11 +68,6 @@ app.use("/api/v1/search", searchRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript + Passport Server");
-});
-
-app.post("/api/v1/test", (req: Request, res: Response) => {
-  req.session.email = "";
-  res.send(req.session);
 });
 
 app.listen(port, async () => {

@@ -12,8 +12,8 @@ router.get("/title", async (req: Request, res: Response) => {
   const queryResults = await elasticClient.search({
     index: "posts",
     query: {
-      match: {
-        title: { query: titleQuery as string, fuzziness: 1 },
+      fuzzy: {
+        title: { value: titleQuery as string, fuzziness: "AUTO" },
       },
     },
   });

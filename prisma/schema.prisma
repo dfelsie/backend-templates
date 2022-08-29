@@ -49,3 +49,10 @@ model Follows {
   @@id([followerName, followingName])
   @@index([followerName, followingName])
 }
+
+//Not yet used
+//model Comment {
+//  id        BigInt   @id @default(autoincrement())
+//  createdAt DateTime @default(now())
+//  text      String   @db.VarChar(255)
+//}

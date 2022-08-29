@@ -5,18 +5,18 @@ function connectElasticClient() {
   try {
     const client = new elasticSearch.Client({
       //node: "https://localhost:9200",
-      //node: "https://elastic:9200",
-      node: "https://es01:9200",
+      //node: "https://es01:9200",
+      node: process.env.ELASTIC_ADDRESS,
       maxRetries: 5,
       requestTimeout: 60000,
       sniffOnStart: true,
       Connection: elasticSearch.HttpConnection,
       auth: {
-        //Comments stuff for normal, uncommented parts are docker
-        //username: process.env.ELASTIC_USER ?? "elastic",
-        username: "elastic",
-        password: "changeme",
-        //password: process.env.ELASTIC_PASSWORD ?? "elasticpassword",
+        //Comments stuff for docker, uncommented parts are local
+        username: process.env.ELASTIC_USER ?? "elastic",
+        password: process.env.ELASTIC_PASSWORD ?? "elasticpassword",
+        //username: "elastic",
+        //password: "changeme",
       },
       tls: {
         rejectUnauthorized: false,

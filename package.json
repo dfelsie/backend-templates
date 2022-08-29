@@ -9,7 +9,7 @@
     "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js\"",
     "fake": "ts-node --esm src/fake.ts",
     "clearData": "ts-node --esm src/clearData.ts",
-    "dockdev": "npx prisma migrate dev --name init && ts-node --esm src/fake.ts && concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js\""
+    "dockdev": "npx prisma migrate deploy && ts-node --esm src/fake.ts && concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js\""
   },
   "keywords": [],
   "author": "",

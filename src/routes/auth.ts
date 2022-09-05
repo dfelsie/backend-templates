@@ -10,9 +10,9 @@ const router: Router = express.Router();
 router.get("/logout", function (req: Request, res: Response) {
   req.session.destroy(function (err) {
     if (err) {
-      res.send(err);
+      return res.send(err);
     } else {
-      res.status(200).send({ msg: "Logged out" });
+      return res.status(200).send({ msg: "Logged out" });
     }
   });
 });

@@ -10,10 +10,25 @@ import authRoutes from "./routes/auth";
 import dataRoutes from "./routes/data";
 import searchRoutes from "./routes/search";
 import elasticClient, { initClient } from "./connectES";
-
+import swaggerUI, { SwaggerOptions } from "swagger-ui-express";
+import swaggerJsdoc from "swagger-jsdoc";
 dotenv.config();
 const app: Express = express();
-const port = process.env.PORT;
+const PORT = process.env.PORT;
+
+const options: SwaggerOptions = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Blog API",
+      version: "1.0.0",
+      description: "simple blog api",
+    },
+    servers: [{ url: `http://localhost:${PORT ?? 3012}` }],
+  },
+  apis: ["./src/routes/*.ts"],
+};
+const openApiSpecification = swaggerJsdoc(options);
 const corsOptions: cors.CorsOptions = {
   //origin: "http://blogfront:3018",
   origin: "http://localhost:3018",
@@ -70,7 +85,11 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript + Passport Server");
 });
 
-app.listen(port, async () => {
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(openApiSpecification));
+
+app.listen(PORT, async () => {
   await initClient(elasticClient);
-  console.log(`⚡️[server]: Server is running at https://localhost:${port}`);
+  console.log(
+    `⚡️[server]: Server is running at https://localhost:${PORT ?? 3012}`
+  );
 });

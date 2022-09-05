@@ -4,7 +4,30 @@ import prisma from "../prismaClient";
 import checkAllString from "../utils/checkAllString";
 
 const router: Router = express.Router();
-
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Book:
+ *       type: object
+ *       required:
+ *         - title
+ *         - author
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: The auto-generated id of the book
+ *         title:
+ *           type: string
+ *           description: The book title
+ *         author:
+ *           type: string
+ *           description: The book author
+ *       example:
+ *         id: d5fE_asz
+ *         title: Sample Book
+ *         author: Jane Roe
+ */
 router.post("/checkifnameunique", async (req: Request, res: Response) => {
   const usernameToCheck = req.body.usernameToCheck;
   if (!checkAllString(usernameToCheck))
@@ -37,8 +60,8 @@ router.post("/addblog", async (req: Request, res: Response) => {
   //const currUserData = await getUserData(client);
   if (!req.session.email)
     return res.send({ msg: "Not logged in", success: false });
-  if (!req.body.title || !req.body.content) {
-    res.status(400).send({ msg: "Bad request", success: false });
+  if (!req.body.title || !req.body.bodyText) {
+    return res.status(400).send({ msg: "Bad request", success: false });
   }
 
   const user = await prisma.user.findFirst({
@@ -61,13 +84,13 @@ router.post("/addblog", async (req: Request, res: Response) => {
       },
     },
   });
-  res.status(200).send({ msg: "Post Uploaded!", success: true });
+  return res.status(200).send({ msg: "Post Uploaded!", success: true });
 });
 
 router.get("/getuserblogs/:username", async (req: Request, res: Response) => {
   const userName = req.params.username as string;
   if (!userName) {
-    res.status(400).send("Bad request");
+    return res.status(400).send("Bad request");
   }
   const user = await prisma.user.findFirst({
     where: {
@@ -169,7 +192,7 @@ router.get("/useroverview/:userid", async (req: Request, res: Response) => {
 
 router.post("/addfollow", async (req: Request, res: Response) => {
   if (!req?.session?.username) {
-    res.status(200).send({
+    return res.status(200).send({
       msg: "Not logged in",
       success: false,
     });

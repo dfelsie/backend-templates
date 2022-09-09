@@ -3,7 +3,7 @@ import elasticClient from "../connectES";
 
 const router: Router = express.Router();
 
-router.get("/title", async (req: Request, res: Response) => {
+router.get("/blogtitle", async (req: Request, res: Response) => {
   const titleQuery = req.query.q;
   console.log(titleQuery);
   if (typeof titleQuery !== "string") {

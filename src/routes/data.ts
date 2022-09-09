@@ -4,30 +4,47 @@ import prisma from "../prismaClient";
 import checkAllString from "../utils/checkAllString";
 
 const router: Router = express.Router();
+
 /**
  * @swagger
- * components:
- *   schemas:
- *     Book:
- *       type: object
- *       required:
- *         - title
- *         - author
- *       properties:
- *         id:
- *           type: string
- *           description: The auto-generated id of the book
- *         title:
- *           type: string
- *           description: The book title
- *         author:
- *           type: string
- *           description: The book author
- *       example:
- *         id: d5fE_asz
- *         title: Sample Book
- *         author: Jane Roe
+ * tags:
+ *   name: Data
+ *   description: The data API
  */
+
+/**
+ * @swagger
+ * /checkifnameunique:
+ *   post:
+ *     summary: Check if supplied name is used by another user
+ *     tags: [Data]
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               usernameToCheck:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Username checked
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 msg:
+ *                   type: string
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                       usernameUnique:
+ *                         type: boolean
+ */
+
 router.post("/checkifnameunique", async (req: Request, res: Response) => {
   const usernameToCheck = req.body.usernameToCheck;
   if (!checkAllString(usernameToCheck))
@@ -39,13 +56,50 @@ router.post("/checkifnameunique", async (req: Request, res: Response) => {
       name: usernameToCheck,
     },
   });
-  return res.json({ usernameUnique: userWithSameName === null });
+  return res.json({
+    msg: "email checked",
+    success: true,
+    data: { usernameUnique: userWithSameName === null },
+  });
 });
+
+/**
+ * @swagger
+ * /checkifemailunique:
+ *   post:
+ *     summary: Check if supplied email is used by another user
+ *     tags: [Data]
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               emailToCheck:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Email checked
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 msg:
+ *                   type: string
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                       emailUnique:
+ *                         type: boolean
+ */
 
 router.post("/checkifemailunique", async (req: Request, res: Response) => {
   const emailToCheck = req.body.emailToCheck;
   if (!checkAllString(emailToCheck))
-    return res.send({ msg: "No usernameToCheck" });
+    return res.send({ msg: "No usernameToCheck", success: false });
 
   //const blogIdNumber = parseInt(usernameToCheck);
   const userWithSameEmail = await prisma.user.findFirst({
@@ -53,15 +107,49 @@ router.post("/checkifemailunique", async (req: Request, res: Response) => {
       email: emailToCheck,
     },
   });
-  return res.json({ emailUnique: userWithSameEmail === null });
+  return res.json({
+    msg: "email checked",
+    success: true,
+    data: { emailUnique: userWithSameEmail === null },
+  });
 });
+
+/**
+ * @swagger
+ * /addblog:
+ *   post:
+ *     summary: Attempt submit a blog.
+ *     tags: [Data]
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               bodyText:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Request recieved, but possibly failed.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 msg:
+ *                   type: string
+ *                 success:
+ *                   type: boolean
+ */
 
 router.post("/addblog", async (req: Request, res: Response) => {
   //const currUserData = await getUserData(client);
   if (!req.session.email)
     return res.send({ msg: "Not logged in", success: false });
   if (!req.body.title || !req.body.bodyText) {
-    return res.status(400).send({ msg: "Bad request", success: false });
+    return res.status(200).send({ msg: "Bad request", success: false });
   }
 
   const user = await prisma.user.findFirst({
@@ -189,6 +277,36 @@ router.get("/useroverview/:userid", async (req: Request, res: Response) => {
     },
   });
 });
+
+/**
+ * @swagger
+ * /addfollow:
+ *   post:
+ *     summary: Attempt to add a blog.
+ *     tags: [Data]
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               followerId:
+ *                 type: integer
+ *               followingName:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Request recieved, but possibly failed.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 msg:
+ *                   type: string
+ *                 success:
+ *                   type: boolean
+ */
 
 router.post("/addfollow", async (req: Request, res: Response) => {
   if (!req?.session?.username) {

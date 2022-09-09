@@ -7,15 +7,63 @@ import checkAllString from "../utils/checkAllString";
 
 const router: Router = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Auth
+ *   description: The authorization API
+ */
+
+/**
+ * @swagger
+ * /logout:
+ *   get:
+ *     summary: Destroy current session/logout current user
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Succesfully logged out
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 msg:
+ *                   type: string
+ *       500:
+ *         description: Error logging out
+ */
 router.get("/logout", function (req: Request, res: Response) {
   req.session.destroy(function (err) {
     if (err) {
-      return res.send(err);
+      return res.status(500).send(err);
     } else {
       return res.status(200).send({ msg: "Logged out" });
     }
   });
 });
+
+/**
+ * @swagger
+ * /user:
+ *   get:
+ *     summary: get current user
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Got current user (possibly null)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 email:
+ *                   type: string
+ *                 userId:
+ *                   type: string
+ *                 username:
+ *                   type: string
+ */
 
 router.get("/user", function (req: Request, res: Response) {
   return res.status(200).send({
@@ -24,6 +72,36 @@ router.get("/user", function (req: Request, res: Response) {
     username: req.session.username,
   });
 });
+
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: Attempt to login user.
+ *     tags: [Auth]
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Request recieved, but possibly failed.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 msg:
+ *                   type: string
+ *                 success:
+ *                   type: boolean
+ */
 
 router.post("/login", async function (req: Request, res: Response) {
   // when user login set the key to redis.
@@ -51,6 +129,40 @@ router.post("/login", async function (req: Request, res: Response) {
 
   res.send({ msg: "Logged in", success: true });
 });
+
+/**
+ * @swagger
+ * /register:
+ *   post:
+ *     summary: Attempt to register user.
+ *     tags: [Auth]
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Request recieved, but possibly failed.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 msg:
+ *                   type: string
+ *                 success:
+ *                   type: boolean
+ *       400:
+ *         description: Problem with operation.
+ */
 
 router.post("/register", async (req: Request, res: Response) => {
   //if (await checkLoggedIn(client)) return res.send("Already logged in");

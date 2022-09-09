@@ -16,19 +16,6 @@ dotenv.config();
 const app: Express = express();
 const PORT = process.env.PORT;
 
-const options: SwaggerOptions = {
-  definition: {
-    openapi: "3.0.0",
-    info: {
-      title: "Blog API",
-      version: "1.0.0",
-      description: "simple blog api",
-    },
-    servers: [{ url: `http://localhost:${PORT ?? 3012}` }],
-  },
-  apis: ["./src/routes/*.ts"],
-};
-const openApiSpecification = swaggerJsdoc(options);
 const corsOptions: cors.CorsOptions = {
   //origin: "http://blogfront:3018",
   origin: "http://localhost:3018",
@@ -84,9 +71,23 @@ app.use("/api/v1/search", searchRoutes);
 app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript + Passport Server");
 });
-
-app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(openApiSpecification));
-
+if (process.env.USE_SWAGGER === "true") {
+  const options: SwaggerOptions = {
+    definition: {
+      openapi: "3.0.0",
+      info: {
+        title: "Blog API",
+        version: "3.0.0",
+        description: "simple blog api",
+      },
+      servers: [{ url: `http://localhost:${PORT ?? 3012}` }],
+    },
+    apis: ["./src/routes/*.ts", "./src/types/swaggerTypes.ts"],
+  };
+  const openApiSpecification = swaggerJsdoc(options);
+  app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(openApiSpecification));
+  console.log("Swagger set up!");
+}
 app.listen(PORT, async () => {
   await initClient(elasticClient);
   console.log(

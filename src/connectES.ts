@@ -59,7 +59,11 @@ export async function initClient(elasticClient: elasticSearch.Client) {
         _id: element.id,
       },
     };
-    const body = { title: element.title, content: element.content };
+    const body = {
+      title: element.title,
+      content: element.content,
+      id: element.id,
+    };
     opAndBodyList.push(op, body);
 
     //elasticPosts.push({_index:"posts",_type:"posts",_id:element.id})

@@ -1,1 +1,1 @@
-Templates for backend web apps
+Express/TS backend for blogging app

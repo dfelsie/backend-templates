@@ -82,7 +82,7 @@ if (process.env.USE_SWAGGER === "true") {
       },
       servers: [{ url: `http://localhost:${PORT ?? 3012}` }],
     },
-    apis: ["./src/routes/*.ts", "./src/types/swaggerTypes.ts"],
+    apis: ["./src/routes/*.ts", "./src/swaggerCode/swaggerTypes.ts"],
   };
   const openApiSpecification = swaggerJsdoc(options);
   app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(openApiSpecification));

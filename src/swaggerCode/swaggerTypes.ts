@@ -1,10 +1,22 @@
 // Schemas/Types used for swagger documentation.
-// Shouldn't affect code in anyway.S
+// Shouldn't affect code in anyway.
 
 /**
  * @swagger
  * components:
  *   schemas:
+ *     JsonResponseNoData:
+ *       type: object
+ *       properties:
+ *         msg:
+ *           type: string
+ *           description: A message about the response
+ *         success:
+ *           type: boolean
+ *           description: Whether the request succeeded or not
+ *       example:
+ *         msg: Success!
+ *         success: true
  *     JsonResponse:
  *       type: object
  *       properties:

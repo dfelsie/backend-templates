@@ -118,7 +118,7 @@ router.post("/checkifemailunique", async (req: Request, res: Response) => {
  * @swagger
  * /addblog:
  *   post:
- *     summary: Attempt submit a blog.
+ *     summary: Attempt to submit a blog.
  *     tags: [Data]
  *     requestBody:
  *       content:
@@ -175,10 +175,104 @@ router.post("/addblog", async (req: Request, res: Response) => {
   return res.status(200).send({ msg: "Post Uploaded!", success: true });
 });
 
+/**
+ * @swagger
+ * /addcomment:
+ *   post:
+ *     summary: Attempt to submit a comment.
+ *     tags: [Data]
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               text:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Request recieved, but possibly failed.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 msg:
+ *                   type: string
+ *                 success:
+ *                   type: boolean
+ */
+
+router.post("/addcomment", async (req: Request, res: Response) => {
+  if (!req.session.email)
+    return res.send({ msg: "Not logged in", success: false });
+  if (!req.body.text) {
+    return res.status(200).send({ msg: "Bad request", success: false });
+  }
+
+  const user = await prisma.user.findFirst({
+    where: {
+      email: req.session.email,
+    },
+  });
+  if (user === null) {
+    return res.send("Odd error");
+  }
+
+  const comment = await prisma.comment.create({
+    data: {
+      text: req.body.text,
+      commenter: {
+        connect: {
+          name: user.name,
+        },
+      },
+    },
+  });
+  return res.status(200).send({ msg: "Comment Sent!", success: true });
+});
+
+/**
+ * @swagger
+ * /getuserblogs/{username}:
+ *   get:
+ *     summary: Get blogs from the user with the provided username
+ *     tags: [Data]
+ *     parameters:
+ *       - in: path
+ *         name: username
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Request recieved, but possibly failed.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 msg:
+ *                   type: string
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     blogs:
+ *                       type: object
+ *       400:
+ *         description: Bad request.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/JsonResponseNoData'
+ */
+
 router.get("/getuserblogs/:username", async (req: Request, res: Response) => {
   const userName = req.params.username as string;
   if (!userName) {
-    return res.status(400).send("Bad request");
+    return res.status(400).send({ success: false, msg: "Username improper" });
   }
   const user = await prisma.user.findFirst({
     where: {
@@ -220,6 +314,49 @@ router.get("/getuserblogs/:username", async (req: Request, res: Response) => {
     },
   });
 });
+
+/**
+ * @swagger
+ * /getuseroverview/{userid}:
+ *   get:
+ *     summary: Get user with provided id
+ *     tags: [Data]
+ *     parameters:
+ *       - in: path
+ *         name: userid
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Request recieved, but possibly failed.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 msg:
+ *                   type: string
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     blogs:
+ *                       type: object
+ *                     followers:
+ *                       type: object
+ *                     follows:
+ *                       type: object
+ *                     username:
+ *                       type: string
+ *       400:
+ *         description: Bad request.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/JsonResponseNoData'
+ */
 
 router.get("/useroverview/:userid", async (req: Request, res: Response) => {
   const userId = req.params.userid as string;
@@ -340,6 +477,35 @@ router.post("/addfollow", async (req: Request, res: Response) => {
   });
   return res.status(200).send({ msg: "Success", success: true });
 });
+
+/**
+ * @swagger
+ * /deletefollow/{username}:
+ *   delete:
+ *     summary: Attempt to delete a follow.
+ *     tags: [Data]
+ *     parameters:
+ *       - name: username
+ *         in: path
+ *         description: name of user to unfollow
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Request recieved, but possibly failed.
+ *         content:
+ *           application/json:
+ *             schema:
+ *             $ref: '#/components/schemas/JsonResponseNoData'
+ *       400:
+ *         description: Bad request.
+ *         content:
+ *           application/json:
+ *             schema:
+ *             $ref: '#/components/schemas/JsonResponseNoData'
+ */
+
 router.delete(
   "/deletefollow/:username",
   async (req: Request, res: Response) => {
@@ -368,6 +534,46 @@ router.delete(
   }
 );
 
+/**
+ * @swagger
+ * /iscurruserfollowing/{username}:
+ *   get:
+ *     summary: See if the current user is following someone
+ *     tags: [Data]
+ *     parameters:
+ *       - in: path
+ *         name: username
+ *         description: check if curr user is following this user
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Request recieved, but possibly failed.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 msg:
+ *                   type: string
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     followerName:
+ *                       type: string
+ *                     followingName:
+ *                       type: string
+ *       400:
+ *         description: Bad request.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/JsonResponseNoData'
+ */
+
 router.get(
   "/iscurruserfollowing/:username",
   async (req: Request, res: Response) => {
@@ -393,6 +599,7 @@ router.get(
         },
       });
     } catch (PrismaClientKnownRequestError) {
+      //Not sure why this is here
       return res.status(400).send({
         msg: "Already exists",
         success: false,
@@ -400,6 +607,43 @@ router.get(
     }
   }
 );
+
+/**
+ * @swagger
+ * /getblog/{blogid}:
+ *   get:
+ *     summary: Get blog with provided id
+ *     tags: [Data]
+ *     parameters:
+ *       - in: path
+ *         name: blogid
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Request recieved, but possibly failed.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 msg:
+ *                   type: string
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     blog:
+ *                       type: object
+ *       400:
+ *         description: Bad request.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/JsonResponseNoData'
+ */
 
 router.get("/getblog/:blogid", async (req: Request, res: Response) => {
   const blogId = req.params.blogid as string;

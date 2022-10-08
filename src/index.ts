@@ -12,9 +12,18 @@ import searchRoutes from "./routes/search";
 import elasticClient, { initClient } from "./connectES";
 import swaggerUI, { SwaggerOptions } from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
-dotenv.config();
+import {
+  PRODUCTION,
+  REDIS_HOST,
+  REDIS_PORT,
+  SERVER_PORT,
+  USE_SWAGGER,
+} from "./consts/envConsts";
+dotenv.config({
+  path: "C:\\Users\\DLF\\Documents\\newCode\\templates\\backend-templates\\.env",
+});
 const app: Express = express();
-const PORT = process.env.PORT;
+const PORT = SERVER_PORT;
 
 const corsOptions: cors.CorsOptions = {
   //origin: "http://blogfront:3018",
@@ -46,8 +55,8 @@ try {
       //rolling: true, // forces resetting of max age
       store: new RedisStore({
         client,
-        host: process.env.REDIS_HOST,
-        port: 6379,
+        host: REDIS_HOST,
+        port: REDIS_PORT,
         //url: "redis://myredis:6379",
         ttl: 90000,
         logErrors: true,
@@ -56,7 +65,7 @@ try {
         maxAge: 360000,
         httpOnly: true,
         sameSite: false,
-        secure: process.env.PRODUCTION === "TRUE",
+        secure: PRODUCTION === "TRUE",
       },
     })
   );
@@ -71,7 +80,7 @@ app.use("/api/v1/search", searchRoutes);
 app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript + Passport Server");
 });
-if (process.env.USE_SWAGGER === "true") {
+if (USE_SWAGGER === "true") {
   const options: SwaggerOptions = {
     definition: {
       openapi: "3.0.0",

@@ -14,7 +14,7 @@ COPY prisma ./prisma
 
 COPY tsconfig.json .
 
-ADD .dockerenv ./.env
+ADD environment/express-prisma-sessions/.dockerenv environment/express-prisma-sessions/.env
 
 RUN npm install
 

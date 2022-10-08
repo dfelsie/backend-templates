@@ -1,4 +1,9 @@
 import elasticSearch from "@elastic/elasticsearch";
+import {
+  ELASTIC_ADDRESS,
+  ELASTIC_PASSWORD,
+  ELASTIC_USER,
+} from "./consts/envConsts";
 import prisma from "./prismaClient";
 
 function connectElasticClient() {
@@ -6,15 +11,22 @@ function connectElasticClient() {
     const client = new elasticSearch.Client({
       //node: "https://localhost:9200",
       //node: "https://es01:9200",
-      node: process.env.ELASTIC_ADDRESS,
+      node: ELASTIC_ADDRESS,
       maxRetries: 5,
       requestTimeout: 60000,
       sniffOnStart: true,
       Connection: elasticSearch.HttpConnection,
       auth: {
         //Comments stuff for docker, uncommented parts are local
-        username: process.env.ELASTIC_USER ?? "elastic",
-        password: process.env.ELASTIC_PASSWORD ?? "elasticpassword",
+        username: ELASTIC_USER ?? "elastic",
+        password: ELASTIC_PASSWORD ?? "elasticpassword",
+        //Local:
+
+        //username: "elastic",
+        //password: "elasticpassword",
+
+        //Docker:
+
         //username: "elastic",
         //password: "changeme",
       },
